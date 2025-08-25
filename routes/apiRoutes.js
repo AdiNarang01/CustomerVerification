@@ -1,11 +1,9 @@
 // routes/apiRoutes.js
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware")
-const { createCustomer } = require("../controllers/customerController");
-const { loginCustomer } = require("../controllers/loginController");
-const { logoutCustomer } = require("../controllers/logoutController");
-const { otpGeneration } = require("../controllers/otp/otpGeneration");
-const { otpValidation } = require("../controllers/otp/otpValidation");
+const { createCustomer } = require("../controllers/customerCreationService");
+const { loginCustomer, logoutCustomer } = require("../controllers/loginlogoutService");
+const { otpGeneration, otpValidation } = require("../controllers/otpService");
 const {jwtVerify} = require("../controllers/jwtverifyController")
 
 const router = express.Router();
