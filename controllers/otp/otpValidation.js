@@ -24,7 +24,7 @@ const otpValidation = async (req, res) => {
     });
   }
 
-  const validOtp = await Otp.findOne({ customerId: customer._id, otp: otp, mobile: mobile });
+  const validOtp = await Otp.findOne({ customerId: customer._id, mobile: mobile });
   if (!validOtp) {
     return res.status(400).json({
       success: false,
@@ -33,6 +33,30 @@ const otpValidation = async (req, res) => {
       message: "OTP is invalid or expired",
     });
   }
+
+  
+  if (validOtp.otp !== otp) {
+    validOtp.retryCount += 1;
+    await validOtp.save();
+
+    if (validOtp.retryCount === validOtp.maxRetries) {
+      await Otp.deleteOne({ _id: validOtp._id });
+      return res.status(429).json({
+        success: false,
+        error_code: "OTPVALER04",
+        error: "TooManyAttempts",
+        message: "Maximum OTP attempts exceeded, Please generate a new otp and try again",
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      error_code: "OTPVALER05",
+      error: "Invalid OTP",
+      message: `OTP is invalid. Attempts left: ${validOtp.maxRetries - validOtp.retryCount}`,
+    });
+  }
+
 
   await Otp.deleteOne({ _id: validOtp._id });
 

@@ -26,8 +26,15 @@ const otpGeneration = async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  await Otp.create({ customerId: customer._id, mobile:mobile, otp:otp, expiresAt });
-
+  const existingOtp = await Otp.findOne({ customerId: customer._id, mobile: mobile });
+  if (existingOtp) {
+    existingOtp.otp = otp;
+    existingOtp.expiresAt = expiresAt;
+    existingOtp.retryCount = 0;
+    await existingOtp.save();
+  } else {
+    await Otp.create({ customerId: customer._id, mobile: mobile, otp: otp, expiresAt });
+  }
   return res.json({
     success: true,
     message: "OTP sent successfully",

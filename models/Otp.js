@@ -19,6 +19,13 @@ const otpSchema = new mongoose.Schema({
     type: Date,
     required: true 
   },
+  retryCount: { 
+    type: Number, 
+    default: 0 
+  },
+  maxRetries: { type: Number, 
+    default: 3 
+  }
 });
 
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
